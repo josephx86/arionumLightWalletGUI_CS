@@ -28,7 +28,7 @@ namespace LightArionumCS {
 
         private void syncWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            sync_data_in_thread();
+            sync_data();
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -166,7 +166,7 @@ namespace LightArionumCS {
             syncWorker.RunWorkerAsync();
         }
 
-        public void sync_data_in_thread()
+        public void sync_data()
         {
             try {
                 if (Wallet.SyncErr > 5) {
@@ -180,7 +180,7 @@ namespace LightArionumCS {
 
                 if (res.Equals("")) {
                     Wallet.SyncErr++;
-                    sync_data_in_thread();
+                    sync_data();
                     return;
                 }
                 decimal.TryParse(res, out decimal bal);
@@ -300,8 +300,12 @@ namespace LightArionumCS {
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (!syncWorker.IsBusy) {
-                syncWorker.RunWorkerAsync();
+            try {
+                if (!syncWorker.IsBusy) {
+                    syncWorker.RunWorkerAsync();
+                }
+            } catch {
+
             }
         }
 
@@ -471,6 +475,11 @@ namespace LightArionumCS {
             var isDecimalPoint = (e.KeyChar == '.') && (!txtSendAmount.Text.Contains('.'));
             var ignoreChar = !(isDigit || isBackspace || isDecimalPoint);
             e.Handled = ignoreChar;
+        }
+
+        private void dataGridView1_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            e.ThrowException = false;
         }
     }
 }
